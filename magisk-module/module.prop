@@ -1,0 +1,7 @@
+id=boot_script
+name=SetUpLinuxEnv
+version=1.0
+versionCode=1
+author=NickMa
+description=Run the init script in 30 seconds after boot
+
