@@ -1,11 +1,13 @@
+#!/bin/bash
 
-ETH_MAC="00:00:00:00:13:8f"
+ETH_MAC="6c:1f:f7:15:4d:1a"
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 mkdir /mnt/ubuntu
 mount | grep /mnt/ubuntu || mount -o loop /data/adb/ubuntu-24.04-mybuilt.img /mnt/ubuntu
 
 mkdir -p /mnt/ubuntu/bin
-cp scripts/init_env.sh /mnt/ubuntu/bin/init_env.sh
+cp $SCRIPT_DIR/init_env.sh /mnt/ubuntu/bin/init_env.sh
 chmod +x /mnt/ubuntu/bin/init_env.sh
 
 while true; do
@@ -23,14 +25,14 @@ while true; do
         echo "Checking interface: $iface with MAC: $mac_address"
         if [ "$mac_address" == "$ETH_MAC" ]; then
             echo "MAC address matches! Move $iface to linux env."
-            sshd_id=$(ps -ef | grep ssh[d] | awk '{print $2}')
-            echo "$(date)" 'sshd pid:', $sshd_id
+            init_env_pid=$(ps -ef | grep '/bin/init_env.s[h]' | grep -v 'init_log' | awk '{print $2}')
+            echo "$(date)" 'init_env.sh pid:', $init_env_pid
 
-            if [ -n "$sshd_id" ]; then
-                echo "$(date) start to move $iface to $sshd_id"
-                ip link set dev $iface netns $sshd_id
+            if [ -n "$init_env_pid" ]; then
+                echo "$(date) start to move $iface to $init_env_pid"
+                ip link set dev $iface netns $init_env_pid
             fi
         fi
     done
-    sleep 5
+    sleep 10
 done
