@@ -19,13 +19,6 @@ ETH_MAC="6c:1f:f7:15:4d:1a"
 
 
 while true; do
-    if ps -ef | grep ssh[d]; then
-        echo "$(date)" sshd is running
-    else
-        sshd
-        echo "$(date)" start sshd
-    fi
-
     interfaces=$(ip link | grep BROADCAST | awk -F: '{print $2}')
     for iface in $interfaces; do
         mac_address=$(ip link show $iface | grep ether | awk '{print $2}')
@@ -43,6 +36,12 @@ while true; do
             fi
             if ip addr show $iface | grep -q "inet" | grep -q "192.168"; then
                 echo "Interface $iface has been assigned ipv4"
+                if ps -ef | grep ssh[d]; then
+                    echo "$(date)" sshd is running
+                else
+                    sshd
+                    echo "$(date)" start sshd
+                fi
             else
                 echo "Interface $iface has no ipv4."
                 ip addr add $LOCAL_IP dev $iface
