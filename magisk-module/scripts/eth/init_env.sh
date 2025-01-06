@@ -34,7 +34,7 @@ while true; do
                     echo "Fail to enable $iface"
                 fi
             fi
-            if ip addr show $iface | grep -q "inet" | grep -q "192.168"; then
+            if ip addr show $iface | grep "inet" | grep -q "192.168"; then
                 echo "Interface $iface has been assigned ipv4"
                 if ps -ef | grep ssh[d]; then
                     echo "$(date)" sshd is running
