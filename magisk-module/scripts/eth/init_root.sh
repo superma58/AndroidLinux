@@ -16,7 +16,16 @@ while true; do
     if ps -ef | grep pivot_root_dem[o]; then
         echo "init_env.sh is running"
     else
-        unshare --mount --net -p setsid /data/adb/pivot_root_demo /mnt/ubuntu  /bin/bash -c "/bin/bash /bin/init_env.sh >> /tmp/init_log" >> /sdcard/log 2>&1 < /dev/null
+        # Why should we use the tini?
+        # Without the tini, the root process (PID 1) in the new namespace of `unshare -p` can't handle some signals.
+        # It cause the whole process group terminate.
+        # For example, the `apt install **` can cause this issue when it's installing the package.
+        #
+        # The tini is downloaded from https://github.com/krallin/tini/releases.
+        # Choose the static version. Because it runs in the android linuv env, it can't load some standard glibc.
+        #
+        # unshare --mount --net -p setsid /data/adb/pivot_root_demo /mnt/ubuntu  /bin/bash -c "/bin/bash /bin/init_env.sh >> /tmp/init_log" >> /sdcard/log 2>&1 < /dev/null
+        unshare --mount --net -p setsid /data/adb/nma/root/tini -- /data/adb/pivot_root_demo /mnt/ubuntu  /bin/bash -c "/bin/bash /bin/init_env.sh >> /tmp/init_log" >> /sdcard/log 2>&1 < /dev/null
     fi
 
     interfaces=$(ip link | grep BROADCAST | awk -F: '{print $2}')

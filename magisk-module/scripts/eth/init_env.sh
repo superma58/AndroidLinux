@@ -14,7 +14,8 @@ mount --bind /data/adb/nma/root/ /root
 /tmp/cgroupfs-mount || echo ok
 
 
-LOCAL_IP="192.168.1.110/24"
+ROUTER_IP="192.168.1.1"
+LOCAL_IP="192.168.1.110/24" # you should add a static IP rule in your router.
 ETH_MAC="6c:1f:f7:15:4d:1a"
 
 
@@ -45,6 +46,7 @@ while true; do
             else
                 echo "Interface $iface has no ipv4."
                 ip addr add $LOCAL_IP dev $iface
+                ip route add default via $ROUTER_IP dev $iface || echo
                 ip link set lo up
             fi
             ip addr show $iface
