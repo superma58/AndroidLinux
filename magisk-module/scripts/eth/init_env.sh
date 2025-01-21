@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 export HOME=/root
@@ -50,6 +53,9 @@ while true; do
                 ip link set lo up
             fi
             ip addr show $iface
+
+            echo -e "\nChecking the ipv6."
+            $SCRIPT_DIR/static_ipv6.sh
         fi
     done
 
