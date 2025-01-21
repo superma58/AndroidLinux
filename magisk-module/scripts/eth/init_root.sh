@@ -6,9 +6,9 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 mkdir /mnt/ubuntu
 mount | grep /mnt/ubuntu || mount -o loop /data/adb/ubuntu-24.04-mybuilt.img /mnt/ubuntu
 
-mkdir -p /mnt/ubuntu/bin
-cp $SCRIPT_DIR/init_env.sh /mnt/ubuntu/bin/init_env.sh
-chmod +x /mnt/ubuntu/bin/init_env.sh
+mkdir -p /mnt/ubuntu/bin/boot_init
+cp -r $SCRIPT_DIR /mnt/ubuntu/bin/boot_init
+chmod +x /mnt/ubuntu/bin/boot_init/init_env.sh
 
 while true; do
     echo "$(date) check the init status"
@@ -25,7 +25,7 @@ while true; do
         # Choose the static version. Because it runs in the android linuv env, it can't load some standard glibc.
         #
         # unshare --mount --net -p setsid /data/adb/pivot_root_demo /mnt/ubuntu  /bin/bash -c "/bin/bash /bin/init_env.sh >> /tmp/init_log" >> /sdcard/log 2>&1 < /dev/null
-        unshare --mount --net -p setsid /data/adb/nma/root/tini -- /data/adb/pivot_root_demo /mnt/ubuntu  /bin/bash -c "/bin/bash /bin/init_env.sh >> /tmp/init_log" >> /sdcard/log 2>&1 < /dev/null
+        unshare --mount --net -p setsid /data/adb/nma/root/tini -- /data/adb/pivot_root_demo /mnt/ubuntu  /bin/bash -c "/bin/bash /bin/boot_init/init_env.sh >> /tmp/init_log" >> /sdcard/log 2>&1 < /dev/null
     fi
 
     interfaces=$(ip link | grep BROADCAST | awk -F: '{print $2}')
@@ -34,7 +34,7 @@ while true; do
         echo "Checking interface: $iface with MAC: $mac_address"
         if [ "$mac_address" == "$ETH_MAC" ]; then
             echo "MAC address matches! Move $iface to linux env."
-            init_env_pid=$(ps -ef | grep '/bin/init_env.s[h]' | grep -v 'init_log' | awk '{print $2}')
+            init_env_pid=$(ps -ef | grep '/bin/boot_init/init_env.s[h]' | grep -v 'init_log' | awk '{print $2}')
             echo "$(date)" 'init_env.sh pid:', $init_env_pid
 
             if [ -n "$init_env_pid" ]; then
