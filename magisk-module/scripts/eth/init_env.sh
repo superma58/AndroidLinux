@@ -55,7 +55,7 @@ while true; do
             ip addr show $iface
 
             echo -e "\nChecking the ipv6."
-            $SCRIPT_DIR/static_ipv6.sh
+            $SCRIPT_DIR/static_ipv6.sh $iface
         fi
     done
 

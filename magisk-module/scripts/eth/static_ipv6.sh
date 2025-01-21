@@ -7,15 +7,16 @@
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
-Domain="jojomon.fun"
+Domain="jojomom.fun"
 RR="nc"
 
-iface="eth0"
+# iface="eth0"
+iface="$1"
 ipv6_pre="2409"
 info=$(ip add show $iface 2>/dev/null)
 if [ $? -ne 0 ]; then
     echo "No found $iface"
-    echo exit 0
+    exit 0
 fi
 
 # Parse ip info
@@ -59,7 +60,7 @@ found=""
 for ip in $static_ips; do
     static_prefix="${ip:0:19}"
     if [ "$prefix" == "$static_prefix" ]; then
-        found="ip"
+        found="$ip"
         continue
     else
         echo "Remove invalid ipv6 $ip from $iface"
