@@ -29,11 +29,26 @@ echo "Dynamic ip is $dynamic_ip"
 max_retries=5
 new_ipv6=""
 gen_new_ipv6() {
-  ipv6_prefix="${1:0:19}"
+  ipv6_prefix=$(echo $1 | cut -d':' -f1-4)
+  old_prefix=""
   for attempt in $(seq 1 $max_retries); do
     echo "Attempt $attempt..."
-    random_suffix=$(printf "%x:%x:%x:%x" $((RANDOM%65536)) $((RANDOM%65536)) $((RANDOM%65536)) $((RANDOM%65536)))
-    new_ipv6="$ipv6_prefix:$random_suffix"
+    if [ -f /tmp/last_ipv6 ] && [ "$attempt" == "1" ]; then
+      # Try to use the old ipv6.
+      new_ipv6=$(cat /tmp/last_ipv6)
+      old_prefix=$(echo $new_ipv6 | cut -d':' -f1-4)
+      if [ "$old_prefix" != "$ipv6_prefix" ]; then
+        echo "Old ipv6 has different prefix, $new_ipv6"
+        old_prefix=""
+      else
+        echo "Use old ipv6: $new_ipv6"
+      fi
+    fi
+    if [ "$old_prefix" == "" ]; then
+      random_suffix=$(printf "%x:%x:%x:%x" $((RANDOM%65536)) $((RANDOM%65536)) $((RANDOM%65536)) $((RANDOM%65536)))
+      new_ipv6="$ipv6_prefix:$random_suffix"
+      echo "Generate random ipv6: $new_ipv6"
+    fi
     if ping6 -c 2 "$new_ipv6" &>/dev/null; then
         echo "$new_ipv6 exists, renew it."
     else
@@ -54,10 +69,10 @@ if [ "$dynamic_ip" == "" ]; then
     echo "No found dynamic ip, pls check later"
     exit 0
 fi
-prefix="${dynamic_ip:0:19}"
+prefix=$(echo $dynamic_ip | cut -d':' -f1-4)
 found=""
 for ip in $static_ips; do
-    static_prefix="${ip:0:19}"
+    static_prefix=$(echo $ip | cut -d':' -f1-4)
     if [ "$prefix" == "$static_prefix" ]; then
         found="$ip"
         continue
@@ -72,6 +87,8 @@ if [ "$found" == "" ]; then
         echo "This new ipv6 $new_ipv6 is validated. Add it to $iface."
         ip addr add $new_ipv6/64 dev $iface
         found="$new_ipv6"
+        # save the ipv6
+        echo "$new_ipv6" > /tmp/last_ipv6
     fi
     echo "Current $iface looks like:"
     ip addr show $iface
