@@ -6,8 +6,9 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 mkdir /mnt/ubuntu
 mount | grep /mnt/ubuntu || mount -o loop /data/adb/ubuntu-24.04-mybuilt.img /mnt/ubuntu
 
+rm -rf /mnt/ubuntu/bin/boot_init
 mkdir -p /mnt/ubuntu/bin/boot_init
-cp -r $SCRIPT_DIR /mnt/ubuntu/bin/boot_init
+cp -r $SCRIPT_DIR/* /mnt/ubuntu/bin/boot_init
 chmod +x /mnt/ubuntu/bin/boot_init/init_env.sh
 
 while true; do
