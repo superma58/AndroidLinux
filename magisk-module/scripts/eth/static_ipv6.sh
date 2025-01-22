@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
 
 # Check if it has a ipv6.
 # If got a ipv6, try to set a static unchanged ipv6.

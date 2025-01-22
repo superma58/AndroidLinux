@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # $1 is the DNS domain name. Example: "tom.com"
 # $2 is the DNS record name. Example: "www"
@@ -6,6 +6,12 @@
 # $4 is the DNS value
 
 set -e
+
+
+# If configured the http proxy and proxy isn't ready, it may cause error
+export HTTP_PROXY=
+export HTTPS_PROXY=
+
 
 if ! which aliyun &> /dev/null; then
   echo "No found aliyun CLI. Installing it..."

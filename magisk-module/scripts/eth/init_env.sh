@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin
 export HOME=/root
 export LANG=C.UTF-8
@@ -16,6 +14,7 @@ mount /dev/block/sdc46 /data
 mount --bind /data/adb/nma/root/ /root
 /tmp/cgroupfs-mount || echo ok
 
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 ROUTER_IP="192.168.1.1"
 LOCAL_IP="192.168.1.110/24" # you should add a static IP rule in your router.
